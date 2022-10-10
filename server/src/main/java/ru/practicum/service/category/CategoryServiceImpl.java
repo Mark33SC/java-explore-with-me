@@ -4,12 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.service.category.dto.CategoryCreateDto;
 import ru.practicum.service.category.dto.CategoryDto;
 import ru.practicum.service.category.dto.CategoryMapper;
 import ru.practicum.service.exception.category.CategoryNotFoundException;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,6 +22,7 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
 
     @Override
+    @Transactional
     public CategoryDto addCategory(CategoryCreateDto createDto) {
         Category category = CategoryMapper.toCategory(createDto);
         categoryRepository.save(category);
@@ -30,6 +31,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional
     public CategoryDto updateCategory(CategoryDto categoryDto) {
         Category category = getCategoryById(categoryDto.getId());
 
@@ -39,11 +41,13 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional
     public void deleteCategory(long id) {
         categoryRepository.deleteById(id);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CategoryDto> getAllCategories(int from, int size) {
         PageRequest pageRequest = PageRequest.of(from, size);
 
@@ -53,6 +57,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Category getCategoryById(long id) {
         return categoryRepository.findById(id).orElseThrow(
                 () -> new CategoryNotFoundException(String.format("Category with id:%s not found", id))

@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.service.category.Category;
 import ru.practicum.service.category.CategoryRepository;
 import ru.practicum.service.client.StatisticClient;
@@ -27,7 +28,6 @@ import ru.practicum.service.request.dto.RequestMapper;
 import ru.practicum.service.user.User;
 import ru.practicum.service.user.UserService;
 
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -50,7 +50,8 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventShortDto> searchEvents(
+    @Transactional(readOnly = true)
+    public List<EventShortDto> getEvents(
             String text,
             List<Long> categories,
             Boolean paid,
@@ -72,6 +73,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public EventFullDto getEventById(long id) {
         Event event = findEventById(id);
         addViewsAndRequests(event);
@@ -79,9 +81,8 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<EventShortDto> getEventsByInitiatorId(long userId, int from, int size) {
-        log.info("Get events for initiator with id:{}, from: {}, size:{}", userId, from, size);
-
         User initiator = userService.getUserById(userId);
 
         PageRequest request = PageRequest.of(from, size);
@@ -92,6 +93,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public EventFullDto updateEventByInitiatorId(long userId, EventUpdateDto eventUpdateDto) {
 
         log.info(
@@ -108,6 +110,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public EventFullDto updateEventById(long eventId, EventUpdateDto eventUpdateDto) {
         LocalDateTime now = LocalDateTime.now();
 
@@ -169,6 +172,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public EventFullDto addEvent(long userId, EventCreateDto eventCreateDto) {
         LocalDateTime now = LocalDateTime.now();
         boolean isValidEventDate = eventCreateDto.getEventDate().minusHours(HOURS_BEFORE_EVENT).isAfter(now);
@@ -208,8 +212,8 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public EventFullDto getEventCurrentUserById(long userId, long eventId) {
-        log.info("Get event with id:{} for current user with id:{}", eventId, userId);
         Event event = findEventById(eventId);
 
         isInitiator(event, userId);
@@ -219,9 +223,8 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public EventFullDto cancelEventAddedCurrentUserById(long userId, long eventId) {
-        log.info("Cancel event with id:{} added current user with id:{}", eventId, userId);
-
         Event event = findEventById(eventId);
 
         isInitiator(event, userId);
@@ -237,6 +240,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<RequestFullDto> getRequestsForEventCurrentUserById(long userId, long eventId) {
         Event event = findEventById(eventId);
 
@@ -248,6 +252,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public RequestFullDto confirmRequestOnEventCurrentUser(long userId, long eventId, long reqId) {
         Event event = findEventById(eventId);
         isInitiator(event, userId);
@@ -277,6 +282,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public RequestFullDto rejectRequestOnEventCurrentUser(long userId, long eventId, long reqId) {
         Event event = findEventById(eventId);
         isInitiator(event, userId);
@@ -287,8 +293,8 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public EventFullDto publishEvent(long eventId) {
-        log.info("Publish event with id:{}", eventId);
         Event event = findEventById(eventId);
         event.setState(EventState.PUBLISHED);
         addViewsAndRequests(event);
@@ -297,8 +303,8 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public EventFullDto rejectEvent(long eventId) {
-        log.info("Reject event with id:{}", eventId);
         Event event = findEventById(eventId);
         event.setState(EventState.CANCELED);
         addViewsAndRequests(event);

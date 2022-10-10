@@ -27,6 +27,7 @@ public class CompilationServiceImpl implements CompilationService {
     private final CompilationMapper mapper;
 
     @Override
+    @Transactional
     public CompilationDto addCompilation(CompilationCreateDto createDto) {
         Compilation compilation = mapper.toCompilation(createDto);
         List<Event> events = findAllEventById(createDto.getEvents());
@@ -38,11 +39,13 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
+    @Transactional
     public void deleteCompilationById(long id) {
         compilationRepository.deleteById(id);
     }
 
     @Override
+    @Transactional
     public void deleteEventFromCompilation(long compilationId, long eventId) {
         Compilation compilation = getCompilationById(compilationId);
         Event event = findEventById(eventId);
@@ -62,6 +65,7 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
+    @Transactional
     public void addEventToCompilation(long compilationId, long eventId) {
         Compilation compilation = getCompilationById(compilationId);
         Event event = findEventById(eventId);
@@ -77,18 +81,21 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
+    @Transactional
     public void unpinnedCompilationById(long id) {
         Compilation compilation = getCompilationById(id);
         compilation.setPinned(false);
     }
 
     @Override
+    @Transactional
     public void pinnedCompilationById(long id) {
         Compilation compilation = getCompilationById(id);
         compilation.setPinned(true);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CompilationDto> getAllCompilation(Boolean pinned, int from, int size) {
         List<Compilation> comp = compilationRepository.findAll();
 
@@ -96,6 +103,7 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Compilation getCompilationById(long id) {
         return compilationRepository.findById(id).orElseThrow(
                 () -> new CompilationNotFoundException(String.format("Compilation with id:%s not found", id))

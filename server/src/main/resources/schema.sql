@@ -11,11 +11,11 @@ CREATE TABLE IF NOT EXISTS users
     name
     VARCHAR
 (
-    255
+    64
 ) NOT NULL,
     email VARCHAR
 (
-    512
+    254
 ) NOT NULL,
     activated BOOLEAN DEFAULT TRUE NOT NULL,
     CONSTRAINT pk_user PRIMARY KEY
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS categories
     name
     VARCHAR
 (
-    255
+    32
 ) NOT NULL UNIQUE,
     CONSTRAINT pk_category PRIMARY KEY
 (

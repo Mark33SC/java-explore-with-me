@@ -3,6 +3,7 @@ package ru.practicum.service.request;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.service.event.Event;
 import ru.practicum.service.event.EventRepository;
 import ru.practicum.service.event.EventState;
@@ -13,7 +14,6 @@ import ru.practicum.service.request.dto.RequestMapper;
 import ru.practicum.service.user.User;
 import ru.practicum.service.user.UserService;
 
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -33,6 +33,7 @@ public class RequestServiceImpl implements RequestService {
     private final UserService userService;
 
     @Override
+    @Transactional
     public RequestFullDto addRequest(long userId, long eventId) {
         Event event = findEventById(eventId);
         User user = userService.getUserById(userId);
@@ -57,9 +58,8 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<RequestFullDto> getRequestsFromCurrentUser(long userId) {
-        log.info("Get request from current user with id:{}", userId);
-
         User requester = userService.getUserById(userId);
 
         return requestRepository
@@ -70,15 +70,12 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
+    @Transactional
     public RequestFullDto cancelRequestCurrentUser(long userId, long requestId) {
         User user = userService.getUserById(userId);
         Request request = findRequestById(requestId);
 
-        if (!request.getRequester().equals(user)) {
-            throw new UserNotRequesterException(
-                    String.format("User with id:%s does not requester for request with id:%s", userId, requestId)
-            );
-        }
+        isRequester(user, request);
 
         request.setStatus(RequestStatus.CANCELED);
 
@@ -94,6 +91,17 @@ public class RequestServiceImpl implements RequestService {
         if (foundDuplicate.isPresent()) {
             throw new RequestAlreadyExistException(
                     String.format("Request for event with id:%s on user with id:%s already exist", eventId, userId)
+            );
+        }
+    }
+
+    private void isRequester(User user, Request request) {
+        User requester = request.getRequester();
+        if (!requester.equals(user)) {
+            throw new UserNotRequesterException(
+                    String.format(
+                            "User with id:%s does not requester for request with id:%s",
+                            user.getId(), requester.getId())
             );
         }
     }

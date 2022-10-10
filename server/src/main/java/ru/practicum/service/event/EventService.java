@@ -7,11 +7,12 @@ import ru.practicum.service.event.dto.EventUpdateDto;
 import ru.practicum.service.request.dto.RequestFullDto;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 public interface EventService {
 
-    List<EventShortDto> searchEvents(
+    List<EventShortDto> getEvents(
             String text,
             List<Long> categories,
             Boolean paid,
@@ -47,7 +48,7 @@ public interface EventService {
 
     EventFullDto rejectEvent(long eventId);
 
-    List<EventFullDto> searchEvents(
+    Collection<EventFullDto> searchEvents(
             List<Long> users,
             List<String> states,
             List<Long> categories,

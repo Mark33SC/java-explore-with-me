@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface UserService {
 
-    List<UserDto> search(long[] ids, int from, int size);
+    List<UserDto> search(Long[] ids, int from, int size);
 
     User getUserById(long userId);
 
