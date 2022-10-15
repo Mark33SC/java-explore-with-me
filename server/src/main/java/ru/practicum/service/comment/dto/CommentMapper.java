@@ -16,7 +16,7 @@ public class CommentMapper {
     private UserService userService;
 
     public Comment toComment(CommentCreateDto commentCreateDto) {
-        Event event =  findEventById(commentCreateDto.getEvent());
+        Event event = findEventById(commentCreateDto.getEvent());
 
         return Comment.builder()
                 .event(event)
