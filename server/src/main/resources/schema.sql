@@ -218,3 +218,51 @@ CREATE TABLE IF NOT EXISTS events_compilation
     id
 )
     );
+
+CREATE TABLE IF NOT EXISTS comments
+(
+    id
+    BIGINT
+    GENERATED
+    BY
+    DEFAULT AS
+    IDENTITY
+    NOT
+    NULL,
+    user_id
+    BIGINT
+    NOT
+    NULL,
+    event_id
+    BIGINT
+    NOT
+    NULL,
+    created_on
+    TIMESTAMP
+    WITHOUT
+    TIME
+    ZONE,
+    txt
+    VARCHAR
+(
+    5000
+) NOT NULL,
+    CONSTRAINT pk_comments PRIMARY KEY
+(
+    id
+),
+    CONSTRAINT FK_COMMENT_ON_USER FOREIGN KEY
+(
+    user_id
+) REFERENCES users
+(
+    id
+),
+    CONSTRAINT FK_COMMENT_ON_EVENT FOREIGN KEY
+(
+    event_id
+) REFERENCES events
+(
+    id
+)
+    );
