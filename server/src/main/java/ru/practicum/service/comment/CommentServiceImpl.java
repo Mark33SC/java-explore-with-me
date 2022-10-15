@@ -48,11 +48,9 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentFullDto addCommentByCurrentUser(Long userId, CommentCreateDto commentCreateDto) {
         User user = userService.getUserById(userId);
-        LocalDateTime createdOn = LocalDateTime.now();
         isActivated(user);
 
         Comment comment = commentMapper.toComment(commentCreateDto);
-        comment.setCreatedOn(createdOn);
         comment.setUser(user);
         Comment savedComment = commentRepository.save(comment);
 
