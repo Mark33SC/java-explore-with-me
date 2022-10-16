@@ -109,7 +109,8 @@ public class CommentServiceImpl implements CommentService {
 
     private void isValidUpdateDate(LocalDateTime createdOn) {
         LocalDateTime now = LocalDateTime.now();
-        if (!(createdOn.plusDays(3)).isAfter(now)) {
+        boolean checkTime = createdOn.plusDays(3).isBefore(now);
+        if (checkTime) {
             throw new CommentNotValidUpdateDate(String.format("Comment with creation date:%s forbidden to change", createdOn));
         }
     }
