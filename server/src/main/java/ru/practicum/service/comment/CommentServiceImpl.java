@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.service.comment.dto.CommentCreateDto;
 import ru.practicum.service.comment.dto.CommentFullDto;
 import ru.practicum.service.comment.dto.CommentMapper;
@@ -15,7 +16,6 @@ import ru.practicum.service.exception.user.UserNotActivatedException;
 import ru.practicum.service.user.User;
 import ru.practicum.service.user.UserService;
 
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -32,6 +32,7 @@ public class CommentServiceImpl implements CommentService {
     private final UserService userService;
 
     @Override
+    @Transactional(readOnly = true)
     public CommentFullDto getCommentById(long commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(
                 () -> new CommentNotFoundException(String.format("Comment with id:%s not found", commentId))
@@ -40,12 +41,14 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Comment> getCommentsByEvent(long eventId, int from, int size) {
         PageRequest request = PageRequest.of(from, size);
         return commentRepository.findByEventId(eventId, request);
     }
 
     @Override
+    @Transactional
     public CommentFullDto addCommentByCurrentUser(Long userId, CommentCreateDto commentCreateDto) {
         User user = userService.getUserById(userId);
         isActivated(user);
@@ -58,6 +61,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional
     public CommentFullDto updateCommentByCurrentUser(Long userId, CommentUpdateDto commentUpdateDto) {
         User user = userService.getUserById(userId);
         CommentFullDto commentFullDto = getCommentById(commentUpdateDto.getId());
@@ -76,6 +80,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional
     public void deleteCommentByCurrentUser(Long userId, Long commentId) {
         User user = userService.getUserById(userId);
 
@@ -88,6 +93,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional
     public void deleteComment(long commentId) {
         commentRepository.deleteById(commentId);
     }
