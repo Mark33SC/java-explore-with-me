@@ -1,4 +1,5 @@
 # java-explore-with-me
+
 Template repository for ExploreWithMe project.
 
 Cсылка на пул-реквест:
