@@ -34,9 +34,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional(readOnly = true)
     public CommentFullDto getCommentById(long commentId) {
-        Comment comment = commentRepository.findById(commentId).orElseThrow(
-                () -> new CommentNotFoundException(String.format("Comment with id:%s not found", commentId))
-        );
+        Comment comment = getCommentByIdFromRep(commentId);
         return commentMapper.toFullDto(comment);
     }
 
@@ -64,9 +62,7 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public CommentFullDto updateCommentByCurrentUser(Long userId, CommentUpdateDto commentUpdateDto) {
         User user = userService.getUserById(userId);
-        CommentFullDto commentFullDto = getCommentById(commentUpdateDto.getId());
-
-        Comment comment = commentMapper.toComment(commentFullDto);
+        Comment comment = getCommentByIdFromRep(commentUpdateDto.getId());
 
         isValidUpdateDate(comment.getCreatedOn());
         isAuthor(comment, user);
@@ -84,8 +80,7 @@ public class CommentServiceImpl implements CommentService {
     public void deleteCommentByCurrentUser(Long userId, Long commentId) {
         User user = userService.getUserById(userId);
 
-        CommentFullDto commentFullDto = getCommentById(commentId);
-        Comment comment = commentMapper.toComment(commentFullDto);
+        Comment comment = getCommentByIdFromRep(commentId);
 
         isAuthor(comment, user);
 
@@ -119,5 +114,11 @@ public class CommentServiceImpl implements CommentService {
         if (checkTime) {
             throw new CommentNotValidUpdateDate(String.format("Comment with creation date:%s forbidden to change", createdOn));
         }
+    }
+
+    private Comment getCommentByIdFromRep(long commentId) {
+        return commentRepository.findById(commentId).orElseThrow(
+                () -> new CommentNotFoundException(String.format("Comment with id:%s not found", commentId))
+        );
     }
 }
